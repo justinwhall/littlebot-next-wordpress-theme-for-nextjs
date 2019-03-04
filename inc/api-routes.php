@@ -1,6 +1,6 @@
 <?php
 /**
- * Filter API routes.
+ * API routes.
  *
  * @package LittleBot Next
  */
@@ -34,8 +34,8 @@ add_action(
             ]
         );
 
-        // Register routes.
-        register_rest_route( 'postlight/v1', '/post', [
+        // Single Post. Query by slug.
+        register_rest_route( 'littlebot/v1', '/post', [
             'methods'  => 'GET',
             'callback' => 'rest_get_post',
             'args' => [
@@ -48,7 +48,8 @@ add_action(
             ],
         ] );
 
-        register_rest_route( 'postlight/v1', '/page', [
+        // Single Page. Query by slug or path.
+        register_rest_route( 'littlebot/v1', '/page', [
             'methods'  => 'GET',
             'callback' => 'rest_get_page',
             'args' => [
@@ -67,7 +68,8 @@ add_action(
             ],
         ] );
 
-        register_rest_route('postlight/v1', '/post/preview', [
+        // Post previews.
+        register_rest_route('littlebot/v1', '/post/preview', [
             'methods'  => 'GET',
             'callback' => 'rest_get_post_preview',
             'args' => [
@@ -84,19 +86,6 @@ add_action(
             },
         ] );
 
-        // Page by path to facilate /child/pages/and/grandchildren.
-        register_rest_route( 'littlebot/v1', '/page', [
-            'methods'  => 'GET',
-            'callback' => 'rest_get_page_by_path',
-            'args' => [
-                'path' => array_merge(
-                    $page_path_arg,
-                    [
-                        'required' => true,
-                    ]
-                ),
-            ],
-        ] );
     }
 );
 
@@ -147,8 +136,11 @@ function rest_get_content( WP_REST_Request $request, $type, $function_name ) {
 
     $slug = $request->get_param( 'slug' );
     $path = $request->get_param( 'path' );
+
+    // If we have have, query by path.
     $post = $path ? wpcom_vip_get_page_by_path( $path ) : get_content_by_slug( $slug, $type );
 
+    // Come up with nothing. Return a 404.
     if ( ! $post ) {
         return new WP_Error(
             $function_name,
@@ -165,6 +157,8 @@ function rest_get_content( WP_REST_Request $request, $type, $function_name ) {
         header( 'Location: /wp-admin/post.php?post=' . $post->ID . '&action=edit' );
         exit;
     }
+
+    // Prepare response.
     $controller = new WP_REST_Posts_Controller( 'post' );
     $data = $controller->prepare_item_for_response( $post, $request );
     $response = $controller->prepare_response_for_collection( $data );
@@ -223,8 +217,6 @@ function get_content_by_slug( $slug, $type = 'post' ) {
     }
     return false;
 }
-
-// function get_con
 
 /**
  * Respond to a REST API request to get a post's latest revision.

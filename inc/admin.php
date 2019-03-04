@@ -25,6 +25,7 @@ function set_headless_preview_link( $link ) {
     return get_frontend_origin() . '/'
         . '_preview/'
         . get_the_ID() . '/'
+        . get_post_type() . '/'
         . wp_create_nonce( 'wp_rest' );
 }
 
