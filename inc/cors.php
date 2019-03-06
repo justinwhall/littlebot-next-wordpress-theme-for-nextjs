@@ -11,6 +11,15 @@ add_action( 'rest_api_init', function () {
         header( 'Access-Control-Allow-Origin: ' . get_frontend_origin() );
         header( 'Access-Control-Allow-Methods: GET' );
         header( 'Access-Control-Allow-Credentials: true' );
+
+        /**
+         * Tell browsers not to cache REST requests if nocache param is set.
+         * This is used for previews as we _always_ want the latest response.
+         */
+        if ( isset( $_GET['nocache'] ) ) {
+            header( 'Cache-Control: no-cache, no-store, must-revalidate' );
+        }
+
         return $value;
     });
 }, 15 );
