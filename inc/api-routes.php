@@ -5,6 +5,18 @@
  * @package LittleBot Next
  */
 
+function littlebot_get_menu() {
+    # Change 'main-menu' to your own navigation slug.
+    return wp_get_nav_menu_items( 'main-menu' );
+}
+
+add_action( 'rest_api_init', function () {
+    register_rest_route( 'littlebot/v1', '/menu', array(
+        'methods' => 'GET',
+        'callback' => 'littlebot_get_menu',
+    ));
+});
+
 add_action(
     'rest_api_init',
     function () {
